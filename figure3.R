@@ -11,9 +11,9 @@
 ## Define directories
 ## Please define your main directory here. 
 ## This should be the directory you cloned the git repository into.
-path_code <- "/Users/kronziel/mywork/diss/ERT/R/paper_code/Cluster_ART_paper"
-if(!file.exists(path_code)){warning("Please change the directory path_code in figure1.R.")}
-setwd(path_code)
+path_code <- this.path::this.dir()
+if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
+
 
 ## Create and define proc directory
 dir.create(file.path(path_code, "proc"), showWarnings = FALSE)
@@ -32,6 +32,7 @@ pacman::p_load(ggplot2)
 pacman::p_load(devtools)
 pacman::p_load(rpart)
 pacman::p_load(dplyr)
+pacman::p_load(cowplot)
 
 #---------------------------------------
 ## Load and prepare data
@@ -39,52 +40,49 @@ pacman::p_load(dplyr)
 results <- read.csv2(file.path(proc_dir, "simulation_data.csv"))
 
 # data produced by simulations.R
-results <- readRDS(file.path(proc_dir, "results.Rds"))
-
-## Transform results from list to data.frame
-## melt data frame to use it for ggplot
-plot_data <- results %>% 
-  bind_rows() %>% 
-  select(method, k_used, covered_effect_vars, covered_correlated_vars, covered_noise_vars) %>%
-  mutate(k_used = as.factor(k_used)) %>% 
-  melt(id = c("method", "k_used")) %>%
-  mutate(
-    x_label = case_when(
-      variable == "covered_effect_vars" ~ "A",
-      variable == "covered_correlated_vars" ~ "B",
-      variable == "covered_noise_vars" ~ "C"
-    )
-  )
+results <- readRDS(file.path(proc_dir, "results.Rds")) %>% 
+  bind_rows()
 
 #---------------------------------------
 # plot data and save plot
 
-ggplot(plot_data, aes(x = method, y = value, col = k_used)) +
+plt1 <- ggplot(results, aes(x = method, y = covered_effect_vars, col = factor(k_used))) +
   geom_boxplot(outlier.size = 0.8) +
-  facet_wrap(variable~.,
-             strip.position = "left",
-             scales = "free_y",
-             labeller = as_labeller(c("covered_effect_vars" = "Covered effect variables", 
-                                      "covered_correlated_vars" = "Covered correlated variables", 
-                                      "covered_noise_vars" = "Covered noise variables"))) +
   theme_bw() +
-  theme(text = element_text(size = 15), legend.position = "right")+
   labs(col = "used k", x = "") +
-  ylab(NULL) +
+  ylab("Covered effect variables") +
   theme(strip.background = element_blank(),
         strip.placement = "outside") +
-  # Texte oben links in die Facets setzen
-  geom_text(
-    data = plot_data %>% distinct(variable, x_label), 
-    aes(x = -Inf, y = Inf, label = x_label), 
-    hjust = -0.5, vjust = 1.5, 
-    inherit.aes = FALSE,
-    size = 5
-  ) +
-  theme(text = element_text(size = 19), legend.position = "right",
+  theme(text = element_text(size = 13), legend.position = "none",
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 12),
         legend.key.size =unit(0.6, 'cm'))
+
+plt2 <- ggplot(results, aes(x = method, y = covered_correlated_vars, col = factor(k_used))) +
+  geom_boxplot(outlier.size = 0.8) +
+  theme_bw() +
+  labs(col = "used k", x = "") +
+  ylab("Covered correlated variables") +
+  theme(strip.background = element_blank(),
+        strip.placement = "outside") +
+  theme(text = element_text(size = 13), legend.position = "none",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.key.size =unit(0.6, 'cm'))
+
+plt3 <- ggplot(results, aes(x = method, y = covered_noise_vars, col = factor(k_used))) +
+  geom_boxplot(outlier.size = 0.8) +
+  theme_bw() +
+  labs(col = "used k", x = "") +
+  ylab("Covered noise variables") +
+  theme(strip.background = element_blank(),
+        strip.placement = "outside") +
+  theme(text = element_text(size = 13), legend.position = "right",
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12),
+        legend.key.size =unit(0.6, 'cm'))
+
+plot_grid(plt1, plt2, plt3, labels = "AUTO", rel_widths = c(1, 1, 1.2), ncol = 3)
 
 ggsave(file.path(out_dir, "abb3_covered_vars.png"), units = "cm", width = 30, height = 9, dpi=1200)
 

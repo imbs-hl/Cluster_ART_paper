@@ -4,7 +4,7 @@
 ## Define directories
 ## Please define your main directory here. 
 ## This should be the directory you cloned the git repository into.
-path_code <- "/Users/kronziel/mywork/diss/ERT/R/paper_code/Cluster_ART_paper"
+path_code <- this.path::this.dir()
 if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
 
 setwd(path_code)
