@@ -8,21 +8,6 @@
 ##' differ from those in the paper.
 
 #---------------------------------------
-## Define directories
-## Please define your main directory here. 
-## This should be the directory you cloned the git repository into.
-path_code <- this.path::this.dir()
-if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
-
-
-## Create and define proc directory
-dir.create(file.path(path_code, "proc"), showWarnings = FALSE)
-proc_dir <- file.path(path_code, "proc")
-## Create and define output directory
-dir.create(file.path(path_code, "output"), showWarnings = FALSE)
-out_dir <- file.path(path_code, "output")
-
-#---------------------------------------
 ## Load libraries
 if (!"pacman" %in% installed.packages()){
   install.packages("pacman")
@@ -33,6 +18,23 @@ pacman::p_load(devtools)
 pacman::p_load(rpart)
 pacman::p_load(dplyr)
 pacman::p_load(cowplot)
+pacman::p_load(this.path)
+
+#---------------------------------------
+## Define directories
+## Please define your main directory here. 
+## This should be the directory you cloned the git repository into.
+path_code <- this.dir()
+if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
+
+
+## Create and define proc directory
+dir.create(file.path(path_code, "proc"), showWarnings = FALSE)
+proc_dir <- file.path(path_code, "proc")
+## Create and define output directory
+dir.create(file.path(path_code, "output"), showWarnings = FALSE)
+out_dir <- file.path(path_code, "output")
+
 
 #---------------------------------------
 ## Load and prepare data

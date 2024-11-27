@@ -1,26 +1,3 @@
-
-#---------------------------------------
-## paths
-## Define directories
-## Please define your main directory here. 
-## This should be the directory you cloned the git repository into.
-path_code <- this.path::this.dir()
-if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
-
-setwd(path_code)
-
-## Create and define registry directory
-dir.create(file.path(path_code, "registries"), showWarnings = FALSE)
-reg_dir <- file.path(path_code, "registries")
-
-## Create and define proc directory
-dir.create(file.path(path_code, "proc"), showWarnings = FALSE)
-proc_dir <- file.path(path_code, "proc")
-
-## Create and define output directory
-dir.create(file.path(path_code, "output"), showWarnings = FALSE)
-out_dir <- file.path(path_code, "output")
-
 #---------------------------------------
 ## load packages
 if (!"pacman" %in% installed.packages()){
@@ -37,6 +14,7 @@ pacman::p_load(plyr)
 pacman::p_load(dplyr)
 pacman::p_load(gridExtra)
 pacman::p_load(WGCNA)
+pacman::p_load(this.path)
 
 if("timbR" %in% installed.packages()){
   library(timbR)
@@ -44,6 +22,29 @@ if("timbR" %in% installed.packages()){
   devtools::install_github("imbs-hl/timbR", "master")
   library(timbR)
 }
+#---------------------------------------
+## paths
+## Define directories
+## Please define your main directory here. 
+## This should be the directory you cloned the git repository into.
+path_code <- this.dir()
+if(!file.exists(path_code)){warning("Please change the directory path_code in simulation_study.R.")}
+
+setwd(path_code)
+
+## Create and define registry directory
+dir.create(file.path(path_code, "registries"), showWarnings = FALSE)
+reg_dir <- file.path(path_code, "registries")
+
+## Create and define proc directory
+dir.create(file.path(path_code, "proc"), showWarnings = FALSE)
+proc_dir <- file.path(path_code, "proc")
+
+## Create and define output directory
+dir.create(file.path(path_code, "output"), showWarnings = FALSE)
+out_dir <- file.path(path_code, "output")
+
+
 
 #---------------------------------------
 ## load functions needed for the data simulation
