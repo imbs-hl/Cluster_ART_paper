@@ -29,11 +29,6 @@ out_dir <- file.path(path_code, "output")
 
 
 #---------------------------------------
-# Load the results from the paper
-results_imp <- readRDS(file.path(proc_dir, "results_paper.Rds"))
-trees_imp <- readRDS(file.path(proc_dir, "trees_paper.Rds"))
-
-
 # Load metrics and fitted ensembles from the local simulation.
 results_imp <- readRDS(file.path(proc_dir, "results.Rds"))
 
@@ -50,19 +45,14 @@ if (!"simulation" %in% names(results_imp)) {
   results_imp$simulation <- ifelse(results_imp$model == "Regression", "linear", "non-linear")
 }
 
-# Match ensemble models to result rows before filtering.
-stopifnot(is.data.frame(results_imp), is.list(trees_imp))
-if ("job.id" %in% names(results_imp) && !is.null(names(trees_imp))) {
-  job_ids <- as.character(results_imp$job.id)
-  stopifnot(!anyNA(job_ids), !anyDuplicated(job_ids), !anyDuplicated(names(trees_imp)),
-            setequal(job_ids, names(trees_imp)))
-  trees_imp <- trees_imp[job_ids]
-} else {
-  stopifnot(nrow(results_imp) == length(trees_imp))
-  warning("Paper exports are paired by row order because matching job IDs are unavailable.")
-}
+# Match ensemble models to result rows by batchtools job ID before filtering.
+job_ids <- as.character(results_imp$job.id)
+stopifnot(is.data.frame(results_imp), length(job_ids) == nrow(results_imp),
+          !anyNA(job_ids), !anyDuplicated(job_ids), !anyDuplicated(names(trees_imp)),
+          setequal(job_ids, names(trees_imp)))
+trees_imp <- trees_imp[job_ids]
 
-# The original paper export records WSV clustering as a missing metric_cluster.
+# Keep the WSV and Boruta configuration for ARTEs.
 k_levels <- c(as.character(1:10), "automatic")
 method_levels <- c("ARTEs", "MRTEs", "MRTs", "RT")
 scenario_levels <- c("linear", "non-linear")
@@ -78,7 +68,7 @@ results <- results_imp %>%
   filter(method %in% method_levels,
          method != "ARTEs" |
            (imp.num.var == "automatic" &
-              (is.na(metric_cluster) | metric_cluster == "weighted splitting variables")))
+              metric_cluster == "weighted splitting variables"))
 stopifnot(nrow(results) > 0L, all(results$simulation %in% scenario_levels), !anyNA(results$k))
 
 # Generate reference observations using the same seeds and row selection as ERT.
@@ -166,3 +156,5 @@ figure_a2 <- ggplot(stability_results, aes(x = method, y = prediction_distance, 
 
 ggsave(file.path(out_dir, "fig_A2_sim_prediction_stability.png"), plot = figure_a2,
        units = "cm", width = 15, height = 9, dpi = 300)
+
+message("Please contact the authors to request the fitted ensemble models used for Figure A2 in the paper.")
