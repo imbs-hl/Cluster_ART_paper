@@ -7,6 +7,7 @@ min.node.size_linear <- 100L
 min.node.size_nonlinear <- 100L
 repls <- 2L
 k <- as.numeric(1:2)
+k_art <- k
 min.bucket <- 20L
 probs_quantiles <- list(0.5)
 
@@ -19,6 +20,7 @@ probs_quantiles <- list(0.5)
 # min.node.size_nonlinear <- 500L  # ERT job script; the manuscript reports 100.
 # repls <- 100L
 # k <- as.numeric(1:10)
+# k_art <- c(k, NA_real_)
 # min.bucket <- 100L
 # probs_quantiles <- list(c(0.25, 0.5, 0.75))
 
@@ -120,11 +122,11 @@ metric <- "weighted splitting variables"
 ## for later use
 
 ## Create registry
-reg_name <- "simulate_ensembles"
+registry_path <- tempfile("simulate_ensembles_", tmpdir = reg_dir)
 
 reg_rf_rep_dist <-
   batchtools::makeExperimentRegistry(
-    file.dir = file.path(reg_dir, reg_name),
+    file.dir = registry_path,
     work.dir = proc_dir,
     conf.file = NA, ## If you have a batch system, please enter conf file here
     source = file.path(path_code, "functions", c(
@@ -211,7 +213,7 @@ algo.designs <- list(
   ),
   ARTEs = expand.grid(metric           = metric,
                       metric_cluster   = metric,
-                      k                = c(k), # add NA_real_ to the vector to use automatic selection
+                      k                = k_art,
                       imp.num.var      = imp.num.var,
                       probs_quantiles  = probs_quantiles,
                       min.bucket       = min.bucket,
