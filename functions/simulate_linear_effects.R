@@ -81,7 +81,7 @@ simulate_data <- function(n_train, n_test, p_cor, nGenesncorr,
     correlated_effect_var_ids <- c(namecp1, namecp2)
     noise_var_ids <- c("X5", "X6", namecp5, namecp6, namecgn)
     
-    return(list(information_df = data.frame(model = "Regression",
+    return(list(information_df = data.frame(simulation = "linear",
                                             n_train = n_train,
                                             n_test = n_test,
                                             p_cor = p_cor,
